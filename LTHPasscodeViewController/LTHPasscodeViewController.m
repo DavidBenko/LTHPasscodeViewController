@@ -28,6 +28,7 @@
 @property (nonatomic, strong) UIView      *coverView;
 @property (nonatomic, strong) UIView      *animatingView;
 @property (nonatomic, strong) UIView      *complexPasscodeOverlayView;
+@property (nonatomic, strong) UIView      *lockOutView;
 
 @property (nonatomic, strong) UITextField *passcodeTextField;
 @property (nonatomic, strong) UITextField *firstDigitTextField;
@@ -38,6 +39,9 @@
 @property (nonatomic, strong) UILabel     *failedAttemptLabel;
 @property (nonatomic, strong) UILabel     *enterPasscodeLabel;
 @property (nonatomic, strong) UIButton    *OKButton;
+
+@property (nonatomic, strong) UILabel     *lockedOutLabel;
+@property (nonatomic, strong) UILabel     *timeLeftLabel;
 
 @property (nonatomic, strong) NSString    *tempPasscode;
 @property (nonatomic, assign) NSInteger   failedAttempts;
@@ -114,12 +118,93 @@
     [[LTHPasscodeViewController sharedUser] _useKeychain:useKeychain];
 }
 
++(void)startLockOut{
+    [[LTHPasscodeViewController sharedUser] _saveLockOutDate:[[NSDate date] dateByAddingTimeInterval:[[LTHPasscodeViewController sharedUser] _lockOutLength]]];
+}
+
++ (BOOL)isLockedOut{
+    return [[LTHPasscodeViewController sharedUser] _isLockedOut];
+}
 
 #pragma mark - Private methods
 - (void)_useKeychain:(BOOL)useKeychain {
     _usesKeychain = useKeychain;
 }
 
+-(CGFloat)_lockOutLength{
+    if ([self.delegate respondsToSelector:@selector(lockOutLength)]) {
+        return [self.delegate lockOutLength];
+    }
+    
+    else return 300; //5 minutes
+}
+
+-(BOOL)_isLockedOut {
+    if (![self _lockOutDate]) {
+        return false;
+    }
+    
+    return ([[self _lockOutDate] compare:[NSDate date]] == NSOrderedDescending);
+}
+
+-(void)_startLockOutLabelUpdateLoop{
+    if ([self _isLockedOut]) {
+        if (_lockedOutLabel) {
+            NSLog(@"Lock Time left: %@",[self _lockOutTimeLeftFormatted]);
+            _timeLeftLabel.text = [self _lockOutTimeLeftFormatted];
+            [self performSelector:@selector(_startLockOutLabelUpdateLoop) withObject:nil afterDelay:1.];
+        }
+    }
+    else {
+        [self _removeLockOutScreen];
+    }
+}
+
+-(NSString *)_lockOutTimeLeftFormatted{
+    
+    if (![self _lockOutDate]) {
+        return @"";
+    }
+    
+    NSTimeInterval diff = [[self _lockOutDate] timeIntervalSinceDate:[NSDate date]];
+    return timeIntervalToString(diff);
+}
+
+NSString *timeIntervalToString(NSTimeInterval interval)
+{
+    long work = (long)interval; // convert to long, NSTimeInterval is *some* numeric type
+    
+    long seconds = work % 60;   // remainder is seconds
+    work /= 60;                 // total number of mins
+    long minutes = work % 60;   // remainder is minutes
+    long hours = work / 60;      // number of hours
+    
+    // now format and return - %ld is long decimal, %02ld is zero-padded two digit long decimal
+    return [NSString stringWithFormat:@"%ld:%02ld:%02ld", hours, minutes, seconds];
+}
+
+-(NSDate *)_lockOutDate{
+    if ([self.delegate respondsToSelector:@selector(lockOutEndDate)]) {
+        return [self.delegate lockOutEndDate];
+    }
+    
+    return [[NSUserDefaults standardUserDefaults] objectForKey:@"lockOutEndDate"];
+}
+
+- (void)_saveLockOutDate:(NSDate *)date {
+    if ([self.delegate respondsToSelector:@selector(saveLockOutEndDate:)]) {
+        [self.delegate saveLockOutEndDate:date];
+        return;
+    }
+    
+    [[NSUserDefaults standardUserDefaults]setObject:date forKey:@"lockOutEndDate"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    if ([self _isLockedOut]) {
+        [self _setupLockOutScreen];
+        [self _startLockOutLabelUpdateLoop];
+    }
+}
 
 - (BOOL)_doesPasscodeExist {
 	return [self _passcode].length != 0;
@@ -259,6 +344,11 @@
     [self _setupLabels];
     [self _setupDigitFields];
     [self _setupOKButton];
+    
+    if ([self _isLockedOut]) {
+        [self _setupLockOutScreen];
+        [self _startLockOutLabelUpdateLoop];
+    }
 	
 	_passcodeTextField = [[UITextField alloc] initWithFrame: CGRectZero];
 	_passcodeTextField.delegate = self;
@@ -271,9 +361,7 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-//    NSLog(@"layout %@", [self.view performSelector:@selector(recursiveDescription)]);
     [_passcodeTextField becomeFirstResponder];
-
 }
 
 
@@ -377,6 +465,102 @@
 
 
 #pragma mark - UI setup
+- (void)_setupLockOutScreen {
+    
+    [self _removeLockOutScreen];
+    _lockOutView = [[UIView alloc]initWithFrame:self.view.bounds];
+    _lockOutView.backgroundColor = _coverViewBackgroundColor;
+    [self.view addSubview:_lockOutView];
+    
+    _lockedOutLabel = [[UILabel alloc] initWithFrame: CGRectZero];
+	_lockedOutLabel.backgroundColor = _enterPasscodeLabelBackgroundColor;
+	_lockedOutLabel.numberOfLines = 0;
+    _lockedOutLabel.text = @"Pay with Rewards has been disabled.\nPlease wait until the timer expires to try again.";
+	_lockedOutLabel.textColor = _labelTextColor;
+	_lockedOutLabel.font = _labelFont;
+	_lockedOutLabel.textAlignment = NSTextAlignmentCenter;
+	[_lockOutView addSubview: _lockedOutLabel];
+    
+    
+    _timeLeftLabel = [[UILabel alloc] initWithFrame: CGRectZero];
+	_timeLeftLabel.text = [self _lockOutTimeLeftFormatted];
+    _timeLeftLabel.numberOfLines = 0;
+	_timeLeftLabel.backgroundColor	= _failedAttemptLabelBackgroundColor;
+	_timeLeftLabel.textColor = _failedAttemptLabelTextColor;
+	_timeLeftLabel.font = _labelFont;
+	_timeLeftLabel.textAlignment = NSTextAlignmentCenter;
+	[_lockOutView addSubview: _timeLeftLabel];
+    
+    _lockedOutLabel.translatesAutoresizingMaskIntoConstraints = NO;
+	_timeLeftLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    CGFloat yOffsetFromCenter = -_lockOutView.frame.size.height * 0.24;
+    
+	NSLayoutConstraint *enterPasscodeConstraintCenterX =
+    [NSLayoutConstraint constraintWithItem: _lockedOutLabel
+                                 attribute: NSLayoutAttributeCenterX
+                                 relatedBy: NSLayoutRelationEqual
+                                    toItem: _lockOutView
+                                 attribute: NSLayoutAttributeCenterX
+                                multiplier: 1.0f
+                                  constant: 0.0f];
+    
+	NSLayoutConstraint *enterPasscodeConstraintCenterY =
+    [NSLayoutConstraint constraintWithItem: _lockedOutLabel
+                                 attribute: NSLayoutAttributeCenterY
+                                 relatedBy: NSLayoutRelationEqual
+                                    toItem: _lockOutView
+                                 attribute: NSLayoutAttributeCenterY
+                                multiplier: 1.0f
+                                  constant: yOffsetFromCenter];
+    
+    [_lockOutView addConstraint: enterPasscodeConstraintCenterX];
+    [_lockOutView addConstraint: enterPasscodeConstraintCenterY];
+    
+    NSLayoutConstraint *failedAttemptLabelCenterX =
+    [NSLayoutConstraint constraintWithItem: _timeLeftLabel
+                                 attribute: NSLayoutAttributeCenterX
+                                 relatedBy: NSLayoutRelationEqual
+                                    toItem: _lockOutView
+                                 attribute: NSLayoutAttributeCenterX
+                                multiplier: 1.0f
+                                  constant: 0.0f];
+	NSLayoutConstraint *failedAttemptLabelCenterY =
+    [NSLayoutConstraint constraintWithItem: _timeLeftLabel
+                                 attribute: NSLayoutAttributeCenterY
+                                 relatedBy: NSLayoutRelationEqual
+                                    toItem: _lockedOutLabel
+                                 attribute: NSLayoutAttributeBottom
+                                multiplier: 1.0f
+                                  constant: _failedAttemptLabelGap];
+	NSLayoutConstraint *failedAttemptLabelWidth =
+    [NSLayoutConstraint constraintWithItem: _timeLeftLabel
+                                 attribute: NSLayoutAttributeWidth
+                                 relatedBy: NSLayoutRelationGreaterThanOrEqual
+                                    toItem: nil
+                                 attribute: NSLayoutAttributeNotAnAttribute
+                                multiplier: 1.0f
+                                  constant: kFailedAttemptLabelWidth];
+	NSLayoutConstraint *failedAttemptLabelHeight =
+    [NSLayoutConstraint constraintWithItem: _timeLeftLabel
+                                 attribute: NSLayoutAttributeHeight
+                                 relatedBy: NSLayoutRelationEqual
+                                    toItem: nil
+                                 attribute: NSLayoutAttributeNotAnAttribute
+                                multiplier: 1.0f
+                                  constant: kFailedAttemptLabelHeight + 6.0f];
+	[_lockOutView addConstraint:failedAttemptLabelCenterX];
+	[_lockOutView addConstraint:failedAttemptLabelCenterY];
+	[_lockOutView addConstraint:failedAttemptLabelWidth];
+	[_lockOutView addConstraint:failedAttemptLabelHeight];
+    
+}
+
+-(void)_removeLockOutScreen {
+    [_lockOutView removeFromSuperview];
+    _lockOutView = nil;
+}
+
 - (void)_setupViews {
     _coverView = [[UIView alloc] initWithFrame: CGRectZero];
     _coverView.backgroundColor = _coverViewBackgroundColor;
