@@ -72,6 +72,22 @@
  @return The passcode.
  */
 - (NSString *)passcode;
+/**
+ @brief  Handle here the saving of the lock out date
+ @param  The lock out date.
+ */
+-(void)saveLockOutEndDate:(NSDate *)date;
+/**
+ @brief  Retrieve here the lock out end date
+ @return The date.
+ */
+-(NSDate *)lockOutEndDate;
+
+/**
+ @brief  Retrieve here the lock out length in seconds
+ @return The date.
+ */
+-(CGFloat)lockOutLength;
 @end
 
 @interface LTHPasscodeViewController : UIViewController
@@ -317,6 +333,16 @@
  @brief Removes the passcode from the keychain and closes the passcode view controller.
  */
 + (void)deletePasscodeAndClose;
+/**
+ @brief starts the lock out of the screen
+ */
++ (void)startLockOut;
+
+/**
+ @brief lock out status of app
+ @return the locked out status
+ */
++ (BOOL)isLockedOut;
 /**
  @brief             Call this if you want to save and read the passcode and timers to and from somewhere else rather than the Keychain.
  @attention         All the protocol methods will fall back to the Keychain if not implemented, even if calling this method with @c NO. This allows for flexibility over what and where you save.
