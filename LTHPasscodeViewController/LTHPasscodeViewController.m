@@ -203,6 +203,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     if ([self _isLockedOut]) {
         [self _setupLockOutScreen];
         [self _startLockOutLabelUpdateLoop];
+        [_passcodeTextField resignFirstResponder];
     }
 }
 
@@ -362,6 +363,9 @@ NSString *timeIntervalToString(NSTimeInterval interval)
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [_passcodeTextField becomeFirstResponder];
+    if ([self _isLockedOut]) {
+        [_passcodeTextField resignFirstResponder];
+    }
 }
 
 
@@ -466,7 +470,6 @@ NSString *timeIntervalToString(NSTimeInterval interval)
 
 #pragma mark - UI setup
 - (void)_setupLockOutScreen {
-    
     [self _removeLockOutScreen];
     _lockOutView = [[UIView alloc]initWithFrame:self.view.bounds];
     _lockOutView.backgroundColor = _coverViewBackgroundColor;
