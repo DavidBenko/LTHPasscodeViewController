@@ -478,7 +478,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     _lockedOutLabel = [[UILabel alloc] initWithFrame: CGRectZero];
 	_lockedOutLabel.backgroundColor = _enterPasscodeLabelBackgroundColor;
 	_lockedOutLabel.numberOfLines = 0;
-    _lockedOutLabel.text = @"Pay with Rewards has been disabled.\nPlease wait until the timer expires to try again.";
+    _lockedOutLabel.text = NSLocalizedString(@"app_disabled_text", nil);
 	_lockedOutLabel.textColor = _labelTextColor;
 	_lockedOutLabel.font = _labelFont;
 	_lockedOutLabel.textAlignment = NSTextAlignmentCenter;
@@ -1545,14 +1545,14 @@ NSString *timeIntervalToString(NSTimeInterval interval)
 
 
 - (void)_loadStringDefaults {
-    self.enterOldPasscodeString = @"Enter your old passcode";
-    self.enterPasscodeString = @"Enter your passcode";
+    self.enterOldPasscodeString = NSLocalizedString(@"enter_pin_text", nil);
+    self.enterPasscodeString = NSLocalizedString(@"enter_pin_text", nil);
     self.enablePasscodeString = @"Enable Passcode";
     self.changePasscodeString = @"Change Passcode";
     self.turnOffPasscodeString = @"Turn Off Passcode";
-    self.reenterPasscodeString = @"Re-enter your passcode";
-    self.reenterNewPasscodeString = @"Re-enter your new passcode";
-    self.enterNewPasscodeString = @"Enter your new passcode";
+    self.reenterPasscodeString = NSLocalizedString(@"confirm_pin_text", nil);
+    self.reenterNewPasscodeString = NSLocalizedString(@"confirm_pin_text", nil);
+    self.enterNewPasscodeString = NSLocalizedString(@"enter_new_pin_text", nil);
 }
 
 
