@@ -257,6 +257,13 @@
 @property (nonatomic, assign) BOOL hidesBackButton;
 
 /**
+ @brief The branding image
+ 
+ */
+
+@property (nonatomic, strong) UIImage *brandingImage;
+
+/**
  @brief				Used for displaying the lock. The passcode view is added directly on the keyWindow.
  @param hasLogout   Set to @c YES for a navBar with a Logout button, set to @c NO for no navBar.
  @param logoutTitle The title of the Logout button.
