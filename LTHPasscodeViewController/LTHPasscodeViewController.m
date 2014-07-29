@@ -30,6 +30,8 @@
 @property (nonatomic, strong) UIView      *complexPasscodeOverlayView;
 @property (nonatomic, strong) UIView      *lockOutView;
 
+@property (nonatomic, strong) UIImageView *brandingImageView;
+
 @property (nonatomic, strong) UITextField *passcodeTextField;
 @property (nonatomic, strong) UITextField *firstDigitTextField;
 @property (nonatomic, strong) UITextField *secondDigitTextField;
@@ -497,7 +499,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     _lockedOutLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	_timeLeftLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
-    CGFloat yOffsetFromCenter = -_lockOutView.frame.size.height * 0.24;
+    CGFloat yOffsetFromCenter = -_lockOutView.frame.size.height * 0.1;
     
 	NSLayoutConstraint *enterPasscodeConstraintCenterX =
     [NSLayoutConstraint constraintWithItem: _lockedOutLabel
@@ -604,6 +606,11 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     _enterPasscodeLabel.text = _isUserChangingPasscode ? NSLocalizedStringFromTable(self.enterOldPasscodeString, _localizationTableName, @"") : NSLocalizedStringFromTable(self.enterPasscodeString, _localizationTableName, @"");
     _enterPasscodeLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	_failedAttemptLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    self.brandingImageView = [[UIImageView alloc]initWithFrame:CGRectZero];
+    self.brandingImageView.image = self.brandingImage;
+    [_animatingView addSubview:self.brandingImageView];
+
 }
 
 
@@ -681,13 +688,52 @@ NSString *timeIntervalToString(NSTimeInterval interval)
         [_passcodeTextField removeConstraints:_passcodeTextField.constraints];
     }
     
+    // Branding image
+    NSLayoutConstraint *brandingImageWidth =
+    [NSLayoutConstraint constraintWithItem: self.brandingImageView
+                                 attribute: NSLayoutAttributeWidth
+                                 relatedBy: 0
+                                    toItem: nil
+                                 attribute: NSLayoutAttributeNotAnAttribute
+                                multiplier: 1.0f
+                                  constant: 182.0f];
+    
+    NSLayoutConstraint *brandingImageHeight =
+    [NSLayoutConstraint constraintWithItem: self.brandingImageView
+                                 attribute: NSLayoutAttributeHeight
+                                 relatedBy: 0
+                                    toItem: nil
+                                 attribute: NSLayoutAttributeNotAnAttribute
+                                multiplier: 1.0f
+                                  constant: 115.0f];
+    
+    NSLayoutConstraint *brandingImageTop =
+    [NSLayoutConstraint constraintWithItem: self.brandingImageView
+                                 attribute: NSLayoutAttributeTop
+                                 relatedBy: NSLayoutRelationEqual
+                                    toItem: self.view
+                                 attribute: NSLayoutAttributeTop
+                                multiplier: 1.0f
+                                  constant: 25.0f];
+    
+    NSLayoutConstraint *brandingImageCenter =
+    [NSLayoutConstraint constraintWithItem: self.brandingImageView
+                                 attribute: NSLayoutAttributeCenterX
+                                 relatedBy: NSLayoutRelationEqual
+                                    toItem: self.view
+                                 attribute: NSLayoutAttributeCenterX
+                                multiplier: 1.0f
+                                  constant: 0.0f];
+    
+    [self.view addConstraints:@[brandingImageWidth,brandingImageHeight,brandingImageTop,brandingImageCenter]];
+    
     // MARK: Please read
 	// The controller works properly on all devices and orientations, but looks odd on iPhone's landscape.
 	// Usually, lockscreens on iPhone are kept portrait-only, though. It also doesn't fit inside a modal when landscape.
 	// That's why only portrait is selected for iPhone's supported orientations.
 	// Modify this to fit your needs.
 	
-	CGFloat yOffsetFromCenter = -self.view.frame.size.height * 0.24;
+	CGFloat yOffsetFromCenter = -self.view.frame.size.height * 0.1;
 	NSLayoutConstraint *enterPasscodeConstraintCenterX =
     [NSLayoutConstraint constraintWithItem: _enterPasscodeLabel
                                  attribute: NSLayoutAttributeCenterX
