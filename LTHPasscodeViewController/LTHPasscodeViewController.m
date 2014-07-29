@@ -499,6 +499,58 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     _lockedOutLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	_timeLeftLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
+    // Hack but whatever for now
+    // force the branding image to appear on the lockout
+    
+    UIImageView *lockoutBrandingImage = [[UIImageView alloc]initWithFrame:CGRectZero];
+    lockoutBrandingImage.translatesAutoresizingMaskIntoConstraints = NO;
+    lockoutBrandingImage.image = self.brandingImage;
+    [_lockOutView addSubview:lockoutBrandingImage];
+    
+    // Branding image
+    NSLayoutConstraint *brandingImageWidth =
+    [NSLayoutConstraint constraintWithItem: lockoutBrandingImage
+                                 attribute: NSLayoutAttributeWidth
+                                 relatedBy: 0
+                                    toItem: nil
+                                 attribute: NSLayoutAttributeNotAnAttribute
+                                multiplier: 1.0f
+                                  constant: 182.0f];
+    
+    NSLayoutConstraint *brandingImageHeight =
+    [NSLayoutConstraint constraintWithItem: lockoutBrandingImage
+                                 attribute: NSLayoutAttributeHeight
+                                 relatedBy: 0
+                                    toItem: nil
+                                 attribute: NSLayoutAttributeNotAnAttribute
+                                multiplier: 1.0f
+                                  constant: 115.0f];
+    
+    CGFloat imageTopOffset = 25.0f;
+    if(self.navigationController){
+        imageTopOffset = 65.0f;
+    }
+    
+    NSLayoutConstraint *brandingImageTop =
+    [NSLayoutConstraint constraintWithItem: lockoutBrandingImage
+                                 attribute: NSLayoutAttributeTop
+                                 relatedBy: NSLayoutRelationEqual
+                                    toItem: _lockOutView
+                                 attribute: NSLayoutAttributeTop
+                                multiplier: 1.0f
+                                  constant: imageTopOffset];
+    
+    NSLayoutConstraint *brandingImageCenter =
+    [NSLayoutConstraint constraintWithItem: lockoutBrandingImage
+                                 attribute: NSLayoutAttributeCenterX
+                                 relatedBy: NSLayoutRelationEqual
+                                    toItem: _lockOutView
+                                 attribute: NSLayoutAttributeCenterX
+                                multiplier: 1.0f
+                                  constant: 0.0f];
+    
+    [_lockOutView addConstraints:@[brandingImageWidth,brandingImageHeight,brandingImageTop,brandingImageCenter]];
+    
     CGFloat yOffsetFromCenter = -_lockOutView.frame.size.height * 0.1;
     
 	NSLayoutConstraint *enterPasscodeConstraintCenterX =
@@ -579,6 +631,11 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     _complexPasscodeOverlayView.backgroundColor = [UIColor whiteColor];
     _complexPasscodeOverlayView.translatesAutoresizingMaskIntoConstraints = NO;
     [_animatingView addSubview:_complexPasscodeOverlayView];
+    
+    self.brandingImageView = [[UIImageView alloc]initWithFrame:CGRectZero];
+    self.brandingImageView.image = self.brandingImage;
+    self.brandingImageView.translatesAutoresizingMaskIntoConstraints = NO;
+    [_animatingView addSubview:self.brandingImageView];
 }
 
 
@@ -606,10 +663,6 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     _enterPasscodeLabel.text = _isUserChangingPasscode ? NSLocalizedStringFromTable(self.enterOldPasscodeString, _localizationTableName, @"") : NSLocalizedStringFromTable(self.enterPasscodeString, _localizationTableName, @"");
     _enterPasscodeLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	_failedAttemptLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    
-    self.brandingImageView = [[UIImageView alloc]initWithFrame:CGRectZero];
-    self.brandingImageView.image = self.brandingImage;
-    [_animatingView addSubview:self.brandingImageView];
 
 }
 
@@ -707,6 +760,11 @@ NSString *timeIntervalToString(NSTimeInterval interval)
                                 multiplier: 1.0f
                                   constant: 115.0f];
     
+    CGFloat imageTopOffset = 25.0f;
+    if(self.navigationController){
+        imageTopOffset = 65.0f;
+    }
+    
     NSLayoutConstraint *brandingImageTop =
     [NSLayoutConstraint constraintWithItem: self.brandingImageView
                                  attribute: NSLayoutAttributeTop
@@ -714,7 +772,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
                                     toItem: self.view
                                  attribute: NSLayoutAttributeTop
                                 multiplier: 1.0f
-                                  constant: 25.0f];
+                                  constant: imageTopOffset];
     
     NSLayoutConstraint *brandingImageCenter =
     [NSLayoutConstraint constraintWithItem: self.brandingImageView
