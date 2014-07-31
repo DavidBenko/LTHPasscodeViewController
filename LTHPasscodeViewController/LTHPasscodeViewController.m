@@ -364,9 +364,10 @@ NSString *timeIntervalToString(NSTimeInterval interval)
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [_passcodeTextField becomeFirstResponder];
-    if ([self _isLockedOut]) {
-        [_passcodeTextField resignFirstResponder];
+    if (![self _isLockedOut]) {
+        [_passcodeTextField becomeFirstResponder];
+    }else {
+        [self _forceKeyboardResign];
     }
 }
 
@@ -472,7 +473,12 @@ NSString *timeIntervalToString(NSTimeInterval interval)
 
 #pragma mark - UI setup
 - (void)_setupLockOutScreen {
-    [self _removeLockOutScreen];
+    
+    if (_lockOutView) {
+        [_lockOutView removeFromSuperview];
+        _lockOutView = nil;
+    }
+    
     _lockOutView = [[UIView alloc]initWithFrame:self.view.bounds];
     _lockOutView.backgroundColor = _coverViewBackgroundColor;
     [self.view addSubview:_lockOutView];
@@ -611,11 +617,13 @@ NSString *timeIntervalToString(NSTimeInterval interval)
 	[_lockOutView addConstraint:failedAttemptLabelWidth];
 	[_lockOutView addConstraint:failedAttemptLabelHeight];
     
+    [self _forceKeyboardResign];
 }
 
 -(void)_removeLockOutScreen {
     [_lockOutView removeFromSuperview];
     _lockOutView = nil;
+    [self _dismissMe];
 }
 
 - (void)_setupViews {
@@ -636,6 +644,15 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     self.brandingImageView.image = self.brandingImage;
     self.brandingImageView.translatesAutoresizingMaskIntoConstraints = NO;
     [_animatingView addSubview:self.brandingImageView];
+}
+
+- (void)_forceKeyboardResign{
+    UITextField *tf = [[UITextField alloc]initWithFrame:CGRectZero];
+    [self.view addSubview:tf];
+    [tf becomeFirstResponder];
+    [tf resignFirstResponder];
+    [tf removeFromSuperview];
+    tf = nil;
 }
 
 
@@ -1426,7 +1443,10 @@ NSString *timeIntervalToString(NSTimeInterval interval)
 
 
 - (void)_resetTextFields {
-	if (![_passcodeTextField isFirstResponder]) [_passcodeTextField becomeFirstResponder];
+	if (![self _isLockedOut]) [_passcodeTextField becomeFirstResponder];
+    else {
+        [self _forceKeyboardResign];
+    }
 	_firstDigitTextField.secureTextEntry = NO;
 	_secondDigitTextField.secureTextEntry = NO;
 	_thirdDigitTextField.secureTextEntry = NO;
