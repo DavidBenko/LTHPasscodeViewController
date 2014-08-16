@@ -37,6 +37,7 @@
 @property (nonatomic, strong) UITextField *secondDigitTextField;
 @property (nonatomic, strong) UITextField *thirdDigitTextField;
 @property (nonatomic, strong) UITextField *fourthDigitTextField;
+@property (nonatomic, strong) UIButton *forgotPasswordButton;
 
 @property (nonatomic, strong) UILabel     *failedAttemptLabel;
 @property (nonatomic, strong) UILabel     *enterPasscodeLabel;
@@ -677,10 +678,24 @@ NSString *timeIntervalToString(NSTimeInterval interval)
 	_failedAttemptLabel.textAlignment = NSTextAlignmentCenter;
 	[_animatingView addSubview: _failedAttemptLabel];
     
+    self.forgotPasswordButton = [[UIButton alloc]initWithFrame:CGRectZero];
+    [self.forgotPasswordButton setTitle:@"Forgot PIN?" forState:UIControlStateNormal];
+    [self.forgotPasswordButton.titleLabel setFont:_labelFont];
+    [self.forgotPasswordButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.forgotPasswordButton setBackgroundColor:[UIColor clearColor]];
+    [self.forgotPasswordButton addTarget:self action:@selector(forgotPassword) forControlEvents:UIControlEventTouchUpInside];
+    [_animatingView addSubview:self.forgotPasswordButton];
+    
     _enterPasscodeLabel.text = _isUserChangingPasscode ? NSLocalizedStringFromTable(self.enterOldPasscodeString, _localizationTableName, @"") : NSLocalizedStringFromTable(self.enterPasscodeString, _localizationTableName, @"");
     _enterPasscodeLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	_failedAttemptLabel.translatesAutoresizingMaskIntoConstraints = NO;
 
+}
+
+-(void)forgotPassword{
+    if ([self.delegate respondsToSelector:@selector(userDidForgetPassword)]) {
+        [self.delegate userDidForgetPassword];
+    }
 }
 
 
@@ -1018,6 +1033,47 @@ NSString *timeIntervalToString(NSTimeInterval interval)
 	[self.view addConstraint:failedAttemptLabelCenterY];
 	[self.view addConstraint:failedAttemptLabelWidth];
 	[self.view addConstraint:failedAttemptLabelHeight];
+    
+    /*NSLayoutConstraint *forgotPasswordCenterX =
+    [NSLayoutConstraint constraintWithItem: self.forgotPasswordButton
+                                 attribute: NSLayoutAttributeCenterX
+                                 relatedBy: NSLayoutRelationEqual
+                                    toItem: self.view
+                                 attribute: NSLayoutAttributeCenterX
+                                multiplier: 1.0f
+                                  constant: 0.0f];
+	NSLayoutConstraint *forgotPasswordCenterY =
+    [NSLayoutConstraint constraintWithItem: self.forgotPasswordButton
+                                 attribute: NSLayoutAttributeCenterY
+                                 relatedBy: NSLayoutRelationEqual
+                                    toItem: self.view
+                                 attribute: NSLayoutAttributeCenterY
+                                multiplier: 1.0f
+                                  constant: 0];
+	NSLayoutConstraint *forgotPasswordWidth =
+    [NSLayoutConstraint constraintWithItem: self.forgotPasswordButton
+                                 attribute: NSLayoutAttributeWidth
+                                 relatedBy: NSLayoutRelationEqual
+                                    toItem: nil
+                                 attribute: NSLayoutAttributeNotAnAttribute
+                                multiplier: 1.0f
+                                  constant: 100];
+	NSLayoutConstraint *forgotPasswordHeight =
+    [NSLayoutConstraint constraintWithItem: self.forgotPasswordButton
+                                 attribute: NSLayoutAttributeHeight
+                                 relatedBy: NSLayoutRelationEqual
+                                    toItem: nil
+                                 attribute: NSLayoutAttributeNotAnAttribute
+                                multiplier: 1.0f
+                                  constant: 300];
+	[self.view addConstraint:forgotPasswordCenterX];
+	[self.view addConstraint:forgotPasswordCenterY];
+	[self.view addConstraint:forgotPasswordWidth];
+	[self.view addConstraint:forgotPasswordHeight];*/
+    
+    
+    CGRect rect = CGRectMake(self.view.frame.size.width / 2 - 50, 320, 100, 30);
+    self.forgotPasswordButton.frame = rect;
     
 //    NSLog(@"constraints %@", self.view.constraints);
 //    NSLog(@"_passcodeTextField %@", _passcodeTextField.constraints);
@@ -1686,7 +1742,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     _horizontalGap = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? _iPhoneHorizontalGap * _iPadFontSizeModifier : _iPhoneHorizontalGap;
     _verticalGap = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 60.0f : 25.0f;
     _modifierForBottomVerticalGap = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 2.6f : 3.0f;
-    _failedAttemptLabelGap = _verticalGap * _modifierForBottomVerticalGap - 2.0f;
+    _failedAttemptLabelGap = _verticalGap * _modifierForBottomVerticalGap - 16.0f;
     _passcodeOverlayHeight = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 96.0f : 40.0f;
 }
 
