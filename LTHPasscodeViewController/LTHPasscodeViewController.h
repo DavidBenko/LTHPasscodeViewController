@@ -94,6 +94,7 @@
 @end
 
 @interface LTHPasscodeViewController : UIViewController
+
 /**
  @brief   The delegate.
  */
@@ -265,6 +266,10 @@
  */
 
 @property (nonatomic, strong) UIImage *brandingImage;
+
+
+- (void)_dismissMe;
+- (void)_cancelAndDismissMe;
 
 /**
  @brief				Used for displaying the lock. The passcode view is added directly on the keyWindow.
