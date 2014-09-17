@@ -197,11 +197,11 @@ NSString *timeIntervalToString(NSTimeInterval interval)
 - (void)_saveLockOutDate:(NSDate *)date {
     if ([self.delegate respondsToSelector:@selector(saveLockOutEndDate:)]) {
         [self.delegate saveLockOutEndDate:date];
-        return;
     }
-    
-    [[NSUserDefaults standardUserDefaults]setObject:date forKey:@"lockOutEndDate"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    else {
+  	[[NSUserDefaults standardUserDefaults]setObject:date forKey:@"lockOutEndDate"];
+    	[[NSUserDefaults standardUserDefaults] synchronize];	
+    }
     
     if ([self _isLockedOut]) {
         [self _setupLockOutScreen];
