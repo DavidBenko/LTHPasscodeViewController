@@ -801,7 +801,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     [NSLayoutConstraint constraintWithItem: self.brandingImageView
                                  attribute: NSLayoutAttributeTop
                                  relatedBy: NSLayoutRelationEqual
-                                    toItem: self.view
+                                    toItem: _animatingView
                                  attribute: NSLayoutAttributeTop
                                 multiplier: 1.0f
                                   constant: imageTopOffset];
@@ -810,7 +810,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     [NSLayoutConstraint constraintWithItem: self.brandingImageView
                                  attribute: NSLayoutAttributeCenterX
                                  relatedBy: NSLayoutRelationEqual
-                                    toItem: self.view
+                                    toItem: _animatingView
                                  attribute: NSLayoutAttributeCenterX
                                 multiplier: 1.0f
                                   constant: 0.0f];
@@ -828,7 +828,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     [NSLayoutConstraint constraintWithItem: _enterPasscodeLabel
                                  attribute: NSLayoutAttributeCenterX
                                  relatedBy: NSLayoutRelationEqual
-                                    toItem: self.view
+                                    toItem: _animatingView
                                  attribute: NSLayoutAttributeCenterX
                                 multiplier: 1.0f
                                   constant: 0.0f];
@@ -836,7 +836,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     [NSLayoutConstraint constraintWithItem: _enterPasscodeLabel
                                  attribute: NSLayoutAttributeCenterY
                                  relatedBy: NSLayoutRelationEqual
-                                    toItem: self.view
+                                    toItem: _animatingView
                                  attribute: NSLayoutAttributeCenterY
                                 multiplier: 1.0f
                                   constant: yOffsetFromCenter];
@@ -848,7 +848,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
         [NSLayoutConstraint constraintWithItem: _firstDigitTextField
                                      attribute: NSLayoutAttributeLeft
                                      relatedBy: NSLayoutRelationEqual
-                                        toItem: self.view
+                                        toItem: _animatingView
                                      attribute: NSLayoutAttributeCenterX
                                     multiplier: 1.0f
                                       constant: - _horizontalGap * 1.5f - 2.0f];
@@ -856,7 +856,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
         [NSLayoutConstraint constraintWithItem: _secondDigitTextField
                                      attribute: NSLayoutAttributeLeft
                                      relatedBy: NSLayoutRelationEqual
-                                        toItem: self.view
+                                        toItem: _animatingView
                                      attribute: NSLayoutAttributeCenterX
                                     multiplier: 1.0f
                                       constant: - _horizontalGap * 2/3 - 2.0f];
@@ -864,7 +864,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
         [NSLayoutConstraint constraintWithItem: _thirdDigitTextField
                                      attribute: NSLayoutAttributeLeft
                                      relatedBy: NSLayoutRelationEqual
-                                        toItem: self.view
+                                        toItem: _animatingView
                                      attribute: NSLayoutAttributeCenterX
                                     multiplier: 1.0f
                                       constant: _horizontalGap * 1/6 - 2.0f];
@@ -872,7 +872,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
         [NSLayoutConstraint constraintWithItem: _fourthDigitTextField
                                      attribute: NSLayoutAttributeLeft
                                      relatedBy: NSLayoutRelationEqual
-                                        toItem: self.view
+                                        toItem: _animatingView
                                      attribute: NSLayoutAttributeCenterX
                                     multiplier: 1.0f
                                       constant: _horizontalGap - 2.0f];
@@ -963,7 +963,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
         [NSLayoutConstraint constraintWithItem: _complexPasscodeOverlayView
                                      attribute: NSLayoutAttributeLeft
                                      relatedBy: NSLayoutRelationEqual
-                                        toItem: self.view
+                                        toItem: _animatingView
                                      attribute: NSLayoutAttributeLeft
                                     multiplier: 1.0f
                                       constant: 0.0f];
@@ -1001,7 +1001,7 @@ NSString *timeIntervalToString(NSTimeInterval interval)
     [NSLayoutConstraint constraintWithItem: _failedAttemptLabel
                                  attribute: NSLayoutAttributeCenterX
                                  relatedBy: NSLayoutRelationEqual
-                                    toItem: self.view
+                                    toItem: _animatingView
                                  attribute: NSLayoutAttributeCenterX
                                 multiplier: 1.0f
                                   constant: 0.0f];
